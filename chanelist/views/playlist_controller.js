@@ -37,6 +37,9 @@ playlistController.controller('PlaylistCtrl', ['$scope', 'CtrlComms',
                     {
                         $scope.$apply(function(){
                             var new_pl = JSON.parse(data.data);
+                            alert($scope.current_playlists.length);
+                            $scope.current_playlists.push(new_pl);
+                            alert($scope.current_playlists.length);
                         });
                     }
                     else {alert(data.error);}

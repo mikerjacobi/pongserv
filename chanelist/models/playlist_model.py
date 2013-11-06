@@ -4,6 +4,7 @@ import sys
 sys.path.append('/home/pi/mjacobi/bottle/bottle-mvc/chanelist/')
 import settings
 from chanelist.orms import user_orm, playlist_orm, video_orm
+from chanelist.models import user_model, video_model
 from sqlalchemy.orm import sessionmaker
 import uuid
 import json
@@ -44,7 +45,7 @@ class PlaylistModel(object):
             raise Exception('Playlist not initialized')
         if self.orm.username != username:
             raise Exception('User does not own this playlist')
-        user = UserModel()
+        user = user_model.UserModel()
         try:
             user.load(username, hashword)
         except:
@@ -71,8 +72,8 @@ class PlaylistModel(object):
 
         #check to see if this user owns this playlist
         try:
-            user_model = UserModel()
-            user_model.load(kwargs['username'], kwargs['hashword'])
+            user = user_model.UserModel()
+            user.load(kwargs['username'], kwargs['hashword'])
         except Exception, e:
             raise UserDoesNotExistError(e)
 
@@ -94,13 +95,13 @@ class PlaylistModel(object):
 
         try:
             try:
-                owned_lists = json.loads(user_model.orm.playlists_owned)
+                owned_lists = json.loads(user.orm.playlists_owned)
             except:
                 owned_lists = {}
             owned_lists[playlist_id] = {'video_count':0, 'total_plays':0}
-            user_model.orm.playlists_owned = json.dumps(owned_lists)
-            user_model.session.add(user_model.orm)
-            user_model.session.commit()
+            user.orm.playlists_owned = json.dumps(owned_lists)
+            user.session.add(user.orm)
+            user.session.commit()
         except:
             raise
 
@@ -111,8 +112,8 @@ class PlaylistModel(object):
             raise PlaylistNotLoadedError('playlist DNE')
 
         try:
-            video_model = VideoModel()
-            video_model.load(str(video_id))
+            video = video_model.VideoModel()
+            video.load(str(video_id))
         except Exception, e:
             raise VideoDoesNotExistError('Video dne: %s', str(e))
 
@@ -120,7 +121,7 @@ class PlaylistModel(object):
             curr_videos = json.loads(self.orm.videos)
         except:
             curr_videos = {}
-        curr_videos[video_model.orm.video_id] = 0 #playcount = 0
+        curr_videos[video.orm.video_id] = 0 #playcount = 0
         self.orm.videos = json.dumps(curr_videos)
         self.session.add(self.orm)
         self.session.commit()
@@ -130,14 +131,14 @@ class PlaylistModel(object):
             raise PlaylistNotLoadedError()
 
         try:
-            video_model = VideoModel()
-            video_model.load(video_id)
+            video = video_model.VideoModel()
+            video.load(video_id)
         except:
             raise VideoDoesNotExistError("Video not in database")
 
         curr_videos = json.loads(self.orm.videos)
         try:
-            del curr_videos[video_model.orm.video_id]
+            del curr_videos[video.orm.video_id]
         except:
             raise VideoDoesNotExistError("Video not in playlist")
 

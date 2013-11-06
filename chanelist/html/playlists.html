@@ -9,7 +9,7 @@
         Your playlists:<br>
         <ul>
         <li ng-repeat="list in current_playlists | filter:query">
-            {{list.playlist_name}}, {{list.videos}}
+        {{list.playlist_name}}/{{list.playlist_id}}: {{list.videos}}
             <button ng-click="playPlaylist(list.playlist_id)">play</button>
         </li>
         </ul>
