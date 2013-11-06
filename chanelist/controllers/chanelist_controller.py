@@ -27,13 +27,18 @@ def index():
     f = open('chanelist/html/index.html').read()
     return f
 
+@app.route('/play/<playlist_id>', method='GET')
+def play(playlist_id):
+    f = open('chanelist/html/index.html').read()
+    return f
+
 @app.route('/user', method='POST')
-@app.route('/user/<username>', method='GET')
-def username(username=None):
+@app.route('/user/<username>/<hashword>/', method='GET')
+def username(username=None, hashword=None):
     user = user_model.UserModel()
     if request.method == 'GET':
         try:
-            user.load(username)
+            user.load(username, hashword)
             success, data = 1, user.as_json()
         except Exception, e:
             success, data = 0, e
