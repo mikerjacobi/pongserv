@@ -1,0 +1,42 @@
+
+<html >
+    <head>
+        <title>ChaneList</title>
+        <script type="text/JavaScript" src="/js/angular.js"></script>
+        <script type="text/JavaScript" src="/js/jquery-1.10.2.js"></script> 
+        <script type="text/JavaScript" src="/js/angular-route.js"></script> 
+        <script type="text/JavaScript" src="/js/jQuery.tubeplayer.js"></script>
+        <script type="text/JavaScript" src="/views/app.js"></script> 
+        <script type="text/JavaScript" src="/views/player_controller.js"></script> 
+        <script type="text/JavaScript" src="/views/user_controller.js"></script> 
+        <script type="text/JavaScript" src="/views/playlist_controller.js"></script> 
+        <script type="text/JavaScript" src="/views/video_controller.js"></script> 
+        <script type="text/JavaScript" src="/views/communication_service.js"></script> 
+
+    </head>
+    <body ng-app="chanelist">
+
+        <div id="header">
+            <a href="/#/video">video</a>
+            <a href="/#/playlist">playlist</a>
+            <a href="/#/user">user</a>
+            <label id="username_display"> </label>
+            <input ng-model="query">
+        </div>
+
+        <br>
+        <div ng-view></div> 
+
+
+        <div id="player" ng-controller="PlayerCtrl">
+            <button ng-click='player_play()'> Play </button>
+            <button ng-click='player_pause()'> Pause </button>
+            <button ng-click='player_next()'> Next </button>
+            <button ng-click='player_previous()'> Previous </button>
+
+            <div id='youtube-player-container' > </div>
+
+        </div>
+            
+    </body>
+</html>
