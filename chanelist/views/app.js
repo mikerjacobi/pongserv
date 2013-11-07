@@ -10,6 +10,10 @@ var chanelist = angular.module('chanelist', [
 chanelist.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
+        when('/play', {
+            templateUrl: 'html/play.html',
+            controller: 'PlayCtrl'
+        }).
         when('/play/:playlist_id', {
             templateUrl: 'html/play.html',
             controller: 'PlayCtrl'
