@@ -13,9 +13,9 @@ commService.factory('CtrlComms', function($rootScope){
         $rootScope.$broadcast('init_user_bc');
     };
 
-    ctrlService.set_current_playlist = function(passed_current_playlist){
+    ctrlService.set_current_playlist = function(passed_current_playlist_id){
         //TODO check if we alrdy loaded this playlsit beforehand
-        ctrlService.current_playlist = ctrlService.get_playlist(passed_current_playlist);
+        ctrlService.current_playlist = ctrlService.get_playlist(passed_current_playlist_id);
         $rootScope.$broadcast('curr_playlist_bc');
             
     };

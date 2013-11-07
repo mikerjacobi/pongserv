@@ -8,15 +8,23 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
             $scope.video_index = 0;
         };
 
+        $scope.start_playlist = function(){
+            $scope.curr_playlist = CtrlComms.current_playlist;
+            alert($scope.curr_playlist.playlist_id);
+            if ($scope.curr_playlist.playlist_id != null){
+                var videos = Object.keys(JSON.parse($scope.curr_playlist.videos));
+                $scope.curr_videos = videos;
+                var first_video = videos[$scope.video_index];
+                jQuery("#youtube-player-container").tubeplayer("play", first_video);
+            }
+        };
+
         $scope.$on('curr_playlist_bc', function(){
             /*
             this function is triggered by playing a playlist
             */
-            $scope.curr_playlist = CtrlComms.current_playlist;
-            var videos = Object.keys(JSON.parse($scope.curr_playlist.videos));
-            $scope.curr_videos = videos;
-            var first_video = videos[$scope.video_index];
-            jQuery("#youtube-player-container").tubeplayer("play", first_video);
+
+            $scope.start_playlist();
         });
 
         $scope.$on('curr_video_bc', function(){
@@ -43,6 +51,10 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
                 },
                 onUnMute: function(){} 
             });
+            $.tubeplayer.defaults.afterReady = function(){
+                $scope.start_playlist();
+            }
+            $.tubeplayer.defaults.loadSWFObject = false;
         };
 
         $scope.player_next = function(){
