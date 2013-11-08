@@ -10,7 +10,6 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
 
         $scope.start_playlist = function(){
             $scope.curr_playlist = CtrlComms.current_playlist;
-            alert($scope.curr_playlist.playlist_id);
             if ($scope.curr_playlist.playlist_id != null){
                 var videos = Object.keys(JSON.parse($scope.curr_playlist.videos));
                 $scope.curr_videos = videos;
@@ -53,6 +52,7 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
             });
             $.tubeplayer.defaults.afterReady = function(){
                 $scope.start_playlist();
+                CtrlComms.signal_player_ready();
             }
             $.tubeplayer.defaults.loadSWFObject = false;
         };
