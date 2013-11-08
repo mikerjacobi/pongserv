@@ -13,6 +13,11 @@ commService.factory('CtrlComms', function($rootScope){
         $rootScope.$broadcast('init_user_bc');
     };
 
+    ctrlService.signal_player_ready = function(){
+        //this function broadcasts that the player has loaded
+        $rootScope.$broadcast('player_ready_bc');
+    };
+
     ctrlService.set_current_playlist = function(passed_current_playlist_id){
         //TODO check if we alrdy loaded this playlsit beforehand
         ctrlService.current_playlist = ctrlService.get_playlist(passed_current_playlist_id);
@@ -20,10 +25,10 @@ commService.factory('CtrlComms', function($rootScope){
             
     };
 
-    ctrlService.set_current_video = function(passed_current_video){
-        ctrlService.current_video = passed_current_video;
-        $rootScope.$broadcast('curr_video_bc');
-    };
+    //ctrlService.set_current_video = function(passed_current_video){
+    //    ctrlService.current_video = passed_current_video;
+    //    $rootScope.$broadcast('curr_video_bc');
+    //};
 
     ctrlService.get_playlist = function(playlist_id){
         var url = '/playlist/'+playlist_id;

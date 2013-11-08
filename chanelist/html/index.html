@@ -27,8 +27,8 @@
         </div>
 
         <br>
-        <div id="indexPlayDiv" ng-controller="PlayCtrl">
-            you are playing: {{playlist_id}}
+        <div id="indexPlayDiv" ng-controller="PlayerCtrl">
+            you are playing: {{curr_playlist.playlist_name}} ({{curr_playlist.playlist_id}})
         </div><br>
 
         <div ng-view></div> 
