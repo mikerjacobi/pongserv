@@ -3,28 +3,42 @@ var playlistController = angular.module('playlistController', []);
 
 playlistController.controller('PlaylistCtrl', ['$scope', 'CtrlComms', 
     function PlaylistCtrl($scope, CtrlComms) {
-        $scope.current_playlists = [];
+        $scope.user_playlists = [];
+        $scope.current_playlist_name='';
+        $scope.current_playlist_vids=[];
+        $scope.alert_msg = '';
 
         $scope.init = function(){
-            $scope.current_user = CtrlComms.current_user;
-            $scope.current_playlists = CtrlComms.current_playlists;
+            $scope.get_user_playlists();
         };
 
-        $scope.init();
-
-        $scope.playPlaylist = function(passed_playlist){
-            CtrlComms.set_current_playlist(passed_playlist);
+        $scope.play_playlist = function(playlist_id){
+            CtrlComms.set_current_playlist(playlist_id);
+        };
+        
+        $scope.show_playlist = function(playlist_id){
+            $scope.alert_msg = '';
+            var pl = CtrlComms.get_playlist(playlist_id);
+            $scope.current_playlist_name = pl.playlist_name;
+            $scope.current_playlist_vids = [];
+            var vids = JSON.parse(pl.videos);
+            for (video_id in vids){
+                $scope.current_playlist_vids.push(CtrlComms.get_video(video_id));   
+            }
+            if ($scope.current_playlist_vids.length == 0){
+                var msg = 'no videos added to this playlist.';
+                $scope.alert_msg = msg;
+            }
         };
 
-        $scope.addPlaylist = function(){
+        $scope.add_playlist = function(){
 
-            $scope.current_user = CtrlComms.current_user;
-
+            var current_user = CtrlComms.current_user;
             var url = '/playlist';
             var payload = {
                 'playlist_name':$( "#playlist_name" ).val(),
-                'username':$scope.current_user.username,
-                'hashword':$scope.current_user.password
+                'username':current_user.username,
+                'hashword':current_user.password
             };
 
             $.ajax({
@@ -33,12 +47,11 @@ playlistController.controller('PlaylistCtrl', ['$scope', 'CtrlComms',
                 dataType:'json',
                 data:payload,
                 success: function(data){
-                    if (data.success == 1)
-                    {
-                        $scope.$apply(function(){
-                            var new_pl = JSON.parse(data.data);
-                            $scope.current_playlists.push(new_pl);
-                        });
+                    if (data.success == 1){
+                        var new_playlist = JSON.parse(data.data);
+                        //CtrlComms.append_playlist(new_playlist);
+                        CtrlComms.playlists.push(playlist);
+                        $scope.user_playlists.push(playlist);
                     }
                     else {alert(data.error);}
                     
@@ -49,6 +62,21 @@ playlistController.controller('PlaylistCtrl', ['$scope', 'CtrlComms',
                 
             });
         };
+
+
+        $scope.get_user_playlists = function(){
+            var playlist_ids = JSON.parse(ctrlService.current_user.playlists_owned);
+
+            for (id in playlist_ids){
+                var pl = ctrlService.get_playlist(id);
+                $scope.user_playlists.push(pl);
+            }
+        
+            $scope.user_playlists;
+        };
+        
+        
+        $scope.init();
     }
 ]);
 

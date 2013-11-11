@@ -1,17 +1,29 @@
     <div id="createPlaylistDiv">
         create playlist: <br>
         name: <input id="playlist_name"><br>
-        <button ng-click='addPlaylist()'>create playlist!</button> <br> 
+        <button ng-click='add_playlist()'>create playlist!</button> <br> 
     </div>
 
     <br>
     <div id="showUserPlaylistsDiv">
         Your playlists:<br>
         <ul>
-        <li ng-repeat="list in current_playlists | filter:query">
-        {{list.playlist_name}}/{{list.playlist_id}}: {{list.videos}}
-            <button ng-click="playPlaylist(list.playlist_id)">play</button>
-        </li>
+            <li ng-repeat="list in user_playlists | filter:query">
+                <button ng-click="play_playlist(list.playlist_id)">play</button>
+                <button ng-click="show_playlist(list.playlist_id)">show</button>
+                {{list.playlist_name}} 
+            </li>
         </ul>
     </div>
+
+    <div id="showPlaylistDiv">
+        {{current_playlist_name}}
+        <ul>
+            <li ng-repeat="vid in current_playlist_vids | filter:query">
+                {{vid.title}}
+            </li>
+        </ul>
+        {{alert_msg}}
+    </div>
+
 

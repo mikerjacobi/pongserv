@@ -1,14 +1,3 @@
-    <div id="getVideoDiv" >
-        video: <input id="showVideo">
-        <button ng-click='getVideo()'>get video!</button> <br>
-        <ul>
-        <li ng-repeat="video in videos | filter:query">
-            {{video.title}} by {{video.artist}}
-        </li>
-        </ul>
-    </div>
-
-    <br>
     <div id="createVideoDiv">
         create video: <br>
         video_id: <input id="video_create_id"><br>
@@ -17,19 +6,11 @@
     </div>
 
     <br>
-    <div id="addVideoToListDiv">
+    <div id="modifyListDiv">
         Add video to playlist: <br>
-        video_id: <input id="video_add_id"><br>
-        playlist_id: <input id="playlist_add_select"> <br>
-        playlist: <select id="playlist_add_select" ng-model="playlistSelect" ng-options="pl.playlist_id as pl.playlist_name for pl in playlists"></select><br>
-        <button ng-click='addVideoToList()'>add video!</button> <br> 
-    <div>
-
-    <br>
-    <div id="delVideoFromListDiv">
-        Delete video from playlist: <br>
-        video_id: <input id="video_del_id"><br>
-        playlist_id: <input id="playlist_del_id"> <br>
-        <button ng-click='delVideoFromList()'>del video!</button> <br> 
+        video_id: <input ng-model='video_id'><br>
+        playlist: <select ng-model="playlist" ng-options="pl.playlist_id as pl.playlist_name for pl in playlists"></select><br>
+        <button ng-click='modify_list("add")'>add video</button> 
+        <button ng-click='modify_list("del")'>del video</button> <br> 
     <div>
 

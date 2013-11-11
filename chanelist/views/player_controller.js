@@ -8,13 +8,12 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
             $scope.video_index = 0;
         };
 
-        $scope.start_playlist = function(){
+        $scope.start_playlist_from_index = function(index){
             $scope.curr_playlist = CtrlComms.current_playlist;
-            if ($scope.curr_playlist.playlist_id != null){
-                var videos = Object.keys(JSON.parse($scope.curr_playlist.videos));
-                $scope.curr_videos = videos;
-                var first_video = videos[$scope.video_index];
-                jQuery("#youtube-player-container").tubeplayer("play", first_video);
+            if (CtrlComms.current_playlist.playlist_id != null){
+                var videos = Object.keys(JSON.parse(CtrlComms.current_playlist.videos));
+                var video = videos[index];
+                jQuery("#youtube-player-container").tubeplayer("play", video);
             }
         };
 
@@ -22,15 +21,10 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
             /*
             this function is triggered by playing a playlist
             */
-
-            $scope.start_playlist();
+            $scope.video_index = 0;
+            $scope.start_playlist_from_index($scope.video_index);
         });
-
-        $scope.$on('curr_video_bc', function(){
-            $scope.curr_video = CtrlComms.current_video;
-            jQuery("#youtube-player-container").tubeplayer("play", $scope.curr_video);
-        });
-
+        
         $scope.playerInit = function(passed_video){
             jQuery("#youtube-player-container").tubeplayer({
                 width: 300,
@@ -51,30 +45,32 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
                 onUnMute: function(){} 
             });
             $.tubeplayer.defaults.afterReady = function(){
-                $scope.start_playlist();
+                $scope.start_playlist_from_index($scope.video_index);
                 CtrlComms.signal_player_ready();
             }
             $.tubeplayer.defaults.loadSWFObject = false;
         };
 
         $scope.player_next = function(){
-            var playlist_len = $scope.curr_videos.length;
+            var videos = Object.keys(JSON.parse(CtrlComms.current_playlist.videos));
+            var playlist_len = videos.length;
             $scope.video_index++;
             if ($scope.video_index >= playlist_len){
                 $scope.video_index = 0;
             }
-            var curr_video = $scope.curr_videos[$scope.video_index];
-            jQuery("#youtube-player-container").tubeplayer("play", curr_video);
+            $scope.start_playlist_from_index($scope.video_index);
         };
 
         $scope.player_previous = function(){
-            var playlist_len = $scope.curr_videos.length;
+            var videos = Object.keys(JSON.parse(CtrlComms.current_playlist.videos));
+            var playlist_len = videos.length;
             $scope.video_index--;
             if ($scope.video_index < 0){
                 $scope.video_index = playlist_len - 1;
             }
-            var curr_video = $scope.curr_videos[$scope.video_index];
-            jQuery("#youtube-player-container").tubeplayer("play", curr_video);
+            $scope.start_playlist_from_index($scope.video_index);
+            //var curr_video = $scope.curr_videos[$scope.video_index];
+            //jQuery("#youtube-player-container").tubeplayer("play", curr_video);
         };
 
         $scope.player_play = function(){
