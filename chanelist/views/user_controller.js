@@ -3,8 +3,6 @@ var userController = angular.module('userController', []);
 
 userController.controller('UserCtrl', ['$scope', 'CtrlComms',
     function UserCtrl($scope, CtrlComms) {
-        $scope.users = [];        
-
         $scope.init = function(){
         };
 
@@ -30,10 +28,10 @@ userController.controller('UserCtrl', ['$scope', 'CtrlComms',
                     if (data.success == 1)
                     {
                         $scope.$apply(function(){
-                            current_user = JSON.parse(data.data);
+                            var current_user = JSON.parse(data.data);
                             $('#username_display').text(current_user.username);
-                            CtrlComms.init_user(current_user);
-                            $scope.current_user = CtrlComms.current_user;
+                            CtrlComms.set_user(current_user);
+                            $scope.current_user = current_user;
                         });
                     }
                     else{
@@ -62,14 +60,12 @@ userController.controller('UserCtrl', ['$scope', 'CtrlComms',
                 data:payload,
                 dataType:'json',
                 success: function(data){
-                    if (data.success == 1)
-                    {
+                    if (data.success == 1){
                         $scope.$apply(function(){
-                            current_user = JSON.parse(data.data);
+                            var current_user = JSON.parse(data.data);
                             $('#username_display').text(current_user.username);
-                            CtrlComms.init_user(current_user);
-                            $scope.current_user = CtrlComms.current_user;
-                            $scope.current_playlists = CtrlComms.current_playlists;
+                            CtrlComms.set_user(current_user);
+                            $scope.current_user = current_user;
                         });
                     }
                     else{
@@ -84,31 +80,6 @@ userController.controller('UserCtrl', ['$scope', 'CtrlComms',
             
         };
 
-        $scope.displayUser = function(){
-            var username = $( "#username_display_id" ).val();
-            var url = '/user/'+username;
-
-            $.ajax({
-                type:'GET',
-                url:url,
-                dataType:'json',
-                success: function(data){
-                    if (data.success == 1)
-                    {
-                        $scope.$apply(function(){
-                            $scope.users = [JSON.parse(data.data)];
-                        });
-                    }
-                    else {alert(data.error);}
-                    
-                },
-                error: function(resp,b,error){
-                    alert(resp.responseText+'</br>'+error);
-                }
-                
-            });
-        };
-   
     },
 ]);
 

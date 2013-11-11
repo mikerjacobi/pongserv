@@ -167,6 +167,15 @@ def server_static(filename):
 def server_static(filename):
     return static_file(filename, root='chanelist/js')
 
+@app.route('/css/<filename>')
+def server_static(filename):
+    return static_file(filename, root='chanelist/css')
+
 @app.route('/html/<filename>')
 def statis_html(filename):
     return static_file (filename, root='chanelist/html')
+
+
+
+
+

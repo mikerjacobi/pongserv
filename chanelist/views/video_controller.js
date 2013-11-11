@@ -2,36 +2,36 @@ var videoController = angular.module('videoController', []);
 
 videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
     function VideoCtrl($scope, CtrlComms) {   
-        $scope.videos = []; 
-        $scope.playlists = []; 
+        $scope.playlists = CtrlComms.playlists;
+        $scope.video_id = '';
 
         $scope.init = function(){
-            $scope.current_user = CtrlComms.current_user;
-            $scope.current_playlists = CtrlComms.current_playlists;
+            $scope.playlists = CtrlComms.playlists;
         };
 
-        
-
-        $scope.init();
-
-        $scope.addVideoToList = function(){
-            var video_id = $( "#video_add_id" ).val();
-            var playlist_id = $( "#playlist_add_select" ).val();
-            var url = '/add/' + video_id + '/' +playlist_id;
+        $scope.modify_list = function(method){
+            var video_id = $scope.video_id;
+            var playlist_id = $scope.playlist;
+            var url = '/'+method+'/' + video_id + '/' +playlist_id;
             var payload = {
-                'username':$scope.current_user.username,
-                'hashword':$scope.current_user.password
+                'username':CtrlComms.current_user.username,
+                'hashword':CtrlComms.current_user.password
             };
 
+            var type = 'NONE';
+            if (method=='add'){type='POST';}
+            else if (method=='del'){type='DELETE';}
+
             $.ajax({
-                type:'POST',
+                type:type,
                 url:url,
                 dataType:'json',
                 data:payload,
                 success: function(data){
                     if (data.success == 1)
                     {
-                       //do somthin!? 
+                        //reload the playlist we just modified
+                        CtrlComms.reload_list(playlist_id);
                     }
                     else {alert(data.error);}
                     
@@ -42,7 +42,7 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
                 
             });
         };
-
+/*
         $scope.delVideoFromList = function(){
             var video_id = $( "#video_del_id" ).val();
             var playlist_id = $( "#playlist_del_id" ).val();
@@ -55,7 +55,8 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
                 success: function(data){
                     if (data.success == 1)
                     {
-                       //do somthin!? 
+                        //reload the playlist we just modified
+                        CtrlComms.reload_list(playlist_id);
                     }
                     else {alert(data.error);}
                     
@@ -67,14 +68,12 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
             });
         };
 
-
+*/
         $scope.createVideo = function(){
             var url = '/video';
             var payload = {
                 'video_id':$( "#video_create_id" ).val(),
                 'title':$( "#video_title" ).val(),
-                //i can remove this i think
-                'artist':$( "#video_artist" ).val()
             };
 
             $.ajax({
@@ -85,9 +84,7 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
                 success: function(data){
                     if (data.success == 1)
                     {
-                        $scope.$apply(function(){
-                            $scope.videos.push(JSON.parse(data.data));
-                        });
+                        var x = 1;
                     }
                     else {alert(data.error);}
                     
@@ -99,28 +96,7 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
             });
         };
 
-        $scope.getVideo = function(){
-            $.ajax({
-                type:'GET',
-                url:'/video/'+$( "#showVideo" ).val(),
-                dataType:'json',
-                success: function(data){
-                    if (data.success == 1)
-                    {
-                        $scope.$apply(function(){
-                            $scope.videos.push(JSON.parse(data.data));
-                        });
-                    }
-                    else {alert(data.error)}
-                },
-                error: function(resp,b,error){
-                    alert(resp.responseText+'</br>'+error);
-                }
-            });
-        };
-
-        
-
+        $scope.init();
     }
 ]);
 
