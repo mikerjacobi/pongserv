@@ -32,6 +32,9 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
                     {
                         //reload the playlist we just modified
                         CtrlComms.reload_list(playlist_id);
+                        var type = 'success';
+                        var msg = 'You '+method+'ed '+video_id+' to '+playlist_id;
+                        CtrlComms.issue_alert(type,msg);
                     }
                     else {alert(data.error);}
                     

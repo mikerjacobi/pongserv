@@ -106,13 +106,19 @@ commService.factory('CtrlComms', function($rootScope){
         for (i in ctrlService.playlists){
             if (playlist_id == ctrlService.playlists[i].playlist_id){
                 ctrlService.playlists.splice(i,i);
-                alert(playlist_id);
+                var reloaded_list = ctrlService.get_playlist(playlist_id);
+                if (playlist_id == ctrlService.current_playlist.playlist_id){
+                    ctrlService.current_playlist = reloaded_list;
+                }
                 break
             }
         }
-        ctrlService.get_playlist(playlist_id);
     };
         
+    ctrlService.issue_alert = function(type,msg){
+        $rootScope.$broadcast('issue_alert_bc', msg);
+    };
+
     return ctrlService;
 });
 

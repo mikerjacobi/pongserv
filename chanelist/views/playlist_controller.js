@@ -50,8 +50,11 @@ playlistController.controller('PlaylistCtrl', ['$scope', 'CtrlComms',
                     if (data.success == 1){
                         var new_playlist = JSON.parse(data.data);
                         //CtrlComms.append_playlist(new_playlist);
-                        CtrlComms.playlists.push(playlist);
-                        $scope.user_playlists.push(playlist);
+                        CtrlComms.playlists.push(new_playlist);
+                        $scope.$apply(function(){
+                            $scope.user_playlists.push(new_playlist);
+                        });
+
                     }
                     else {alert(data.error);}
                     

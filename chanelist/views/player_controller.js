@@ -9,12 +9,14 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
         };
 
         $scope.start_playlist_from_index = function(index){
-            $scope.curr_playlist = CtrlComms.current_playlist;
+            var current_video;
             if (CtrlComms.current_playlist.playlist_id != null){
                 var videos = Object.keys(JSON.parse(CtrlComms.current_playlist.videos));
                 var video = videos[index];
+                current_video = CtrlComms.get_video(video);
                 jQuery("#youtube-player-container").tubeplayer("play", video);
             }
+            $scope.current_video = current_video;
         };
 
         $scope.$on('curr_playlist_bc', function(){
@@ -40,10 +42,13 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
                 onMute: function(){},
                 onPlayerEnded: function(){
                     //TODO increment a play count right here
-                    $scope.player_next();
+                    $scope.$apply(function(){
+                        $scope.player_next();
+                    });
                 },
                 onUnMute: function(){} 
             });
+
             $.tubeplayer.defaults.afterReady = function(){
                 $scope.start_playlist_from_index($scope.video_index);
                 CtrlComms.signal_player_ready();
@@ -80,7 +85,6 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
         $scope.player_pause = function(){
             jQuery("#youtube-player-container").tubeplayer("pause");
         };
-
 
 
         $scope.init();

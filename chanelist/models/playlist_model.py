@@ -29,6 +29,14 @@ class PlaylistModel(object):
         self.orm = None
         self.session = Session()
 
+    def search(self):
+        try:
+            return self.session.query(
+                playlist_orm.Playlist)\
+                .all()
+        except:
+            raise
+
     def load(self, playlist_id):
         try:
             self.orm = self.session.query(

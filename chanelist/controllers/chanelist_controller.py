@@ -80,6 +80,18 @@ def login():
         success, data = 0, e
     return format_output(success, data)
 
+@app.route('/search', method='GET')
+def search():
+    try:
+        playlist = playlist_model.PlaylistModel()
+        data = playlist.search()
+        success = 1
+    except Exception, e:
+        success = 0
+        data = e
+    return format_output(success, data)
+
+
 @app.route('/playlist', method='POST')
 @app.route('/playlist/<playlist_id>', method='GET')
 def playlist(playlist_id=None):
