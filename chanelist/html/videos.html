@@ -1,16 +1,16 @@
     <div id="createVideoDiv">
         create video: <br>
-        video_id: <input id="video_create_id"><br>
-        title: <input id="video_title"><br>
-        <button ng-click='createVideo()'>create video!</button> <br> 
+        <input class="input-medium search-query" id="video_create_id" placeholder="video id"><br>
+        <input class="input-medium search-query" id="video_title" placeholder="title"><br>
+        <button class="btn btn-primary" ng-click='createVideo()'>create video!</button> <br> 
     </div>
 
     <br>
     <div id="modifyListDiv">
         Add video to playlist: <br>
-        video_id: <input ng-model='video_id'><br>
-        playlist: <select ng-model="playlist" ng-options="pl.playlist_id as pl.playlist_name for pl in playlists"></select><br>
-        <button ng-click='modify_list("add")'>add video</button> 
-        <button ng-click='modify_list("del")'>del video</button> <br> 
+        <input class="input-medium search-query" ng-model='video_id' placeholder="video id" ><br>
+        <select ng-model="playlist" ng-options="pl.playlist_id as pl.playlist_name for pl in playlists" placeholder="playlist id"></select><br>
+        <button class="btn btn-primary" ng-click='modify_list("add")'>add video</button> 
+        <button class="btn btn-warning" ng-click='modify_list("del")'>del video</button> <br> 
     <div>
 

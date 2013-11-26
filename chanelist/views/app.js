@@ -4,12 +4,18 @@ var chanelist = angular.module('chanelist', [
     'userController',
     'videoController',
     'playerController',
-    'playController'
-]);
+    'playController',
+    'searchController',
+    'alertController'
+    ]);
 
 chanelist.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
+        when('/search', {
+            templateUrl: 'html/search.html',
+            controller: 'SearchCtrl'
+        }).
         when('/play', {
             templateUrl: 'html/play.html',
             controller: 'PlayCtrl'
