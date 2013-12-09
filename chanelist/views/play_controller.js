@@ -3,6 +3,7 @@ var playController = angular.module('playController', []);
 playController.controller('PlayCtrl', ['$scope', 'CtrlComms', '$routeParams',
     function PlayCtrl($scope, CtrlComms, $routeParams) {   
         $scope.current_videos = [];
+        $scope.curr_playlist = {};
 
         $scope.init = function(){
             if ($routeParams.playlist_id != null){
