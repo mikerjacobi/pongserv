@@ -105,7 +105,7 @@ commService.factory('CtrlComms', function($rootScope){
     ctrlService.reload_list = function(playlist_id){
         for (i in ctrlService.playlists){
             if (playlist_id == ctrlService.playlists[i].playlist_id){
-                ctrlService.playlists.splice(i,i);
+                ctrlService.playlists.splice(i,1);
                 var reloaded_list = ctrlService.get_playlist(playlist_id);
                 if (playlist_id == ctrlService.current_playlist.playlist_id){
                     ctrlService.current_playlist = reloaded_list;
@@ -114,9 +114,28 @@ commService.factory('CtrlComms', function($rootScope){
             }
         }
     };
-        
-    ctrlService.issue_alert = function(type,msg){
-        $rootScope.$broadcast('issue_alert_bc', msg);
+
+    ctrlService.get_user_playlists = function(){
+        var user_playlists = []; 
+        var playlist_ids = JSON.parse(ctrlService.current_user.playlists_owned);
+
+        for (id in playlist_ids){
+            var pl = ctrlService.get_playlist(id);
+            user_playlists.push(pl);
+        }
+    
+        return user_playlists;
+    };
+      
+    ctrlService.alerts = []; 
+    ctrlService.add_alert = function(type,msg){
+        ctrlService.alerts.push({type:type, msg:msg}); 
+        $rootScope.$broadcast('issue_alert_bc');
+    };
+
+    ctrlService.del_alert = function(index){
+        ctrlService.alerts.splice(index, 1);
+        $rootScope.$broadcast('issue_alert_bc');
     };
 
     return ctrlService;

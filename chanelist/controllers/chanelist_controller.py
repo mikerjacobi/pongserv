@@ -2,8 +2,13 @@ from chanelist import app
 from bottle import static_file
 from bottle import template, request, response, view
 from chanelist.models import user_model, playlist_model, video_model
+import urllib2
 import json
 import md5
+import sqlalchemy.exc
+from BeautifulSoup import BeautifulSoup
+import traceback
+import sys
 
 def get_input_data(request):
     if 'curl' in request.headers['User-Agent']:
@@ -14,11 +19,11 @@ def get_input_data(request):
 
 def format_output(success, data):
     output = {}
-    output['success'] = success
+    output["success"] = success
     if success == 1:
-        output['data'] = str(data)
+        output["data"] = data
     elif success == 0:
-        output['error'] = str(data)
+        output["error"] = data
     output = json.dumps(output)
     return output
 
@@ -60,7 +65,7 @@ def username(username=None, hashword=None):
             user.create(**kwargs)
             success, data = 1, user.as_json()
         except (Exception), e:
-            success, data = 0, e
+            success, data = 0, str(e)
     return format_output(success, data)
 
 @app.route('/login', method='POST')
@@ -77,26 +82,35 @@ def login():
         user.load(**kwargs)
         success, data = 1, user.as_json()
     except (Exception), e:
-        success, data = 0, e
+        success, data = 0, str(e)
     return format_output(success, data)
 
 @app.route('/search', method='GET')
 def search():
     try:
         playlist = playlist_model.PlaylistModel()
-        data = playlist.search()
+        data = str(playlist.search())
         success = 1
     except Exception, e:
         success = 0
-        data = e
+        data = str(e) 
     return format_output(success, data)
-
 
 @app.route('/playlist', method='POST')
 @app.route('/playlist/<playlist_id>', method='GET')
-def playlist(playlist_id=None):
+@app.route('/playlist/<username>/<playlist_name>', method='GET')
+def playlist(playlist_id=None, username=None, playlist_name=None):
     playlist = playlist_model.PlaylistModel()
     if request.method == 'GET':
+
+        #get pl_id from username//playlistname
+        if playlist_id == None:
+            for pl_id in user_model.get_playlist_ids(username):
+                curr_pl_name = playlist_model.get_playlist_name_from_id(pl_id)
+                if playlist_name == curr_pl_name:
+                    playlist_id = pl_id
+                    break
+
         try:
             playlist.load(playlist_id)
             success = 1
@@ -115,7 +129,7 @@ def playlist(playlist_id=None):
             playlist.create(**kwargs)
             success, data = 1, playlist.as_json()
         except (Exception), e:
-            success, data = 0, e
+            success, data = 0, str(e)
     return format_output(success, data)
 
 
@@ -134,17 +148,60 @@ def video(video_id=None):
         input_data = get_input_data(request)
 
         #TODO validate this input
+        description = input_data.get('description','')
+        duration = input_data.get('duration', 0)
         kwargs = dict(
             video_id = input_data['video_id'],
             title = input_data['title'],
+            description = description,
+            duration = duration
         )
 
         try:
             video.create(**kwargs)
             success, data = 1, video.as_json()
         except (Exception), e:
-            success, data = 0, e
+            success, data = 0, str(e)
     return format_output(success, data)
+
+@app.route('/batchvideo', method='POST')
+def batchvideo():
+    input_data = get_input_data(request)
+    video_list = input_data['video_list']
+
+    return_data = {}
+
+    for i in range(len(video_list)):
+        #TODO validate this input
+        description = video_list[i].get('description','')
+        duration = video_list[i].get('duration', 0)
+        video_id = video_list[i]['video_id']
+        kwargs = dict(
+            video_id = video_id,
+            title = video_list[i]['title'],
+            description = description,
+            duration = duration
+        )
+
+        try:
+            video = video_model.VideoModel()
+            video.create(**kwargs)
+            return_data[i] = {
+                'success':1,
+                'data':video.as_json()
+            }
+        except (sqlalchemy.exc.IntegrityError), e:
+            return_data[i] = {
+                'success':0,
+                'data':"%s is a duplicate"%(video_id)
+            }
+        except (Exception), e:
+            return_data[i] = {
+                'success':0,
+                'data':str(e)
+            }
+
+    return format_output(1, return_data)
 
 @app.route('/add/<video_id>/<playlist_id>', method='POST')
 def add_video(video_id, playlist_id):
@@ -156,8 +213,86 @@ def add_video(video_id, playlist_id):
         playlist.add_video(video_id)
         success, data = 1, playlist.as_json()
     except Exception, e:
-        success, data = 0, e
+        success, data = 0, str(e)
     return format_output(success, data)
+
+@app.route('/batchadd/<playlist_id>', method='POST')
+def batch_add_video(playlist_id):
+    try:
+        playlist = playlist_model.PlaylistModel()
+        playlist.load(playlist_id)
+        input_data = get_input_data(request)
+        playlist.verify_owner(input_data['username'], input_data['hashword'])
+        video_list = input_data['video_list']
+        data = []
+        for i in range(len(video_list)):
+            video_id = video_list[i]['video_id']
+            playlist.add_video(video_id)
+        success = 1
+        data.append(video_id)
+    except Exception, e:
+        traceback.print_exc(file=sys.stdout)
+        success, data = 0, str(e)
+    return format_output(success, data)
+
+
+@app.route('/autoadd/<playlist_id>', method='POST')
+def autoadd_video(playlist_id):
+    """
+    #TODO 
+        create the video (or verify it alrdy exists)
+            make a video_model.create_from_url
+        add to playlist
+        return
+    """
+    return_data ={}
+    try:
+        video = video_model.VideoModel()
+        input_data = get_input_data(request)
+        video_list = input_data['video_list']
+        if type(video_list) != type([]):
+            #goofy hack for javascript ajax post not handling lists well
+            #JS client has to jsonify the video list of dictionaries object
+            video_list = json.loads(video_list)
+    except Exception, e:
+        traceback.print_exc(file=sys.stdout)
+        success, data = 0, 'failzo'
+        return format_output(success,data)
+
+    index = 0
+    for video_json in video_list:
+        try:
+            url = video_json['url']
+            video_kwargs = get_url_data(url)
+            fetch_video = False
+
+            try:
+                video.load(video_kwargs['video_id'])
+            except video_model.VideoNotCreated, e:
+                fetch_video = True
+
+            if fetch_video and video_kwargs['provider']=='youtube':
+                video_kwargs.update(get_youtube_data(video_kwargs['video_id']))
+                video.create(**video_kwargs)
+
+            video_id = video.orm.video_id
+            playlist = playlist_model.PlaylistModel()
+            playlist.load(playlist_id)
+            playlist.verify_owner(input_data['username'], input_data['hashword'])
+            playlist.add_video(video_id)
+            return_data[index] = {'success':1, 'data':video.as_json()}
+        except Exception, e:
+            return_data[index] = {'success':0, 'data':str(e)}
+        index += 1
+    if len(return_data) == 0:
+        success, data = 0, 'No videos added.  Could be no data sent or uncaught parse error'
+    else:
+        success, data = 1, return_data
+
+    return format_output(success,data)
+
+
+
 
 @app.route('/del/<video_id>/<playlist_id>', method='DELETE')
 def del_video(video_id, playlist_id):
@@ -168,8 +303,41 @@ def del_video(video_id, playlist_id):
         playlist.del_video(video_id)
         success, data = 1, playlist.as_json()
     except Exception, e:
-        success, data = 0, e
+        success, data = 0, str(e)
     return format_output(success, data)
+
+def get_youtube_data(video_id):
+    try:
+        base_url = 'http://gdata.youtube.com/feeds/api/videos/'
+        youtube_url = base_url + video_id
+        response = urllib2.urlopen(youtube_url)
+        xml = BeautifulSoup(response.read())
+        description = xml.findAll('media:description')[0].string
+        title = xml.findAll('media:title')[0].string
+        try:
+            duration = int(xml.findAll('yt:duration')[0].split('"')[1])
+        except:
+            duration = 0
+        return {
+            'description':description,
+            'title':title,
+            'duration':duration
+        }
+    except:
+        raise
+
+def get_url_data(url):
+    video_id, provider = None, None
+    if 'youtube' in url:
+        provider = 'youtube'
+        get_params = url.split('?')[1].split('&')
+        for get_param in get_params:
+            if 'v=' in get_param:
+                video_id = get_param.split('=')[1]
+                break
+    else:
+        raise Exception('invalid url')
+    return {'video_id':video_id, 'provider':provider}
 
 @app.route('/views/<filename>')
 def server_static(filename):

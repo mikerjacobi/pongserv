@@ -30,13 +30,14 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
                 success: function(data){
                     if (data.success == 1)
                     {
+                        var msg = 'method: '+method+'; video: '+video_id+'; playlist: '+playlist_id;
+                        CtrlComms.add_alert('success', msg);
                         //reload the playlist we just modified
                         CtrlComms.reload_list(playlist_id);
-                        var type = 'success';
-                        var msg = 'You '+method+'ed '+video_id+' to '+playlist_id;
-                        CtrlComms.issue_alert(type,msg);
                     }
-                    else {alert(data.error);}
+                    else {
+                        CtrlComms.add_alert('error', data.error);
+                    };
                     
                 },
                 error: function(resp,b,error){
@@ -45,38 +46,76 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
                 
             });
         };
-/*
-        $scope.delVideoFromList = function(){
-            var video_id = $( "#video_del_id" ).val();
-            var playlist_id = $( "#playlist_del_id" ).val();
-            var url = '/del/'+ video_id+'/'+playlist_id;
+
+
+        $scope.auto_modify_list = function(method){
+            var video_url = $scope.video_url;
+            var playlist_id = $scope.playlist;
+            var url = '/autoadd/'+playlist_id;
+
+
+            var video_list = [
+                {'url':video_url},
+                {'url':video_url}
+            ];
+
+
+            var payload = {
+                'video_list':JSON.stringify(video_list),
+                'username':CtrlComms.current_user.username,
+                'hashword':CtrlComms.current_user.password
+            };
+
+            var type = 'NONE';
+            if (method=='add'){type='POST';}
+            else if (method=='del'){type='DELETE';}
 
             $.ajax({
-                type:'DELETE',
+                type:type,
                 url:url,
                 dataType:'json',
+                contentType: 'application/json; charset=utf-8',
+                data:payload,
                 success: function(data){
                     if (data.success == 1)
                     {
+                        var msg = 'autoadd successful';
+                        CtrlComms.add_alert('success', msg);
                         //reload the playlist we just modified
                         CtrlComms.reload_list(playlist_id);
                     }
-                    else {alert(data.error);}
+                    else {
+                        CtrlComms.add_alert('error', data.error);
+                    };
                     
                 },
                 error: function(resp,b,error){
-                    alert(resp.responseText+'</br>'+error);
+                    var msg = resp.responseText+':' + error;
+                    CtrlComms.add_alert('error', msg);
                 }
                 
             });
         };
 
-*/
+
+
+
+
+
+
+
+
+
+
+
         $scope.createVideo = function(){
             var url = '/video';
+            var video_id = $( "#video_create_id" ).val();
             var payload = {
-                'video_id':$( "#video_create_id" ).val(),
+                'video_id':video_id,
                 'title':$( "#video_title" ).val(),
+                'description':$( "#video_description" ).val(),
+                'duration':0
             };
 
             $.ajax({
@@ -87,13 +126,15 @@ videoController.controller('VideoCtrl', ['$scope', 'CtrlComms',
                 success: function(data){
                     if (data.success == 1)
                     {
-                        var x = 1;
+                        var msg = 'Created video: '+video_id+'.  Try adding it to a playlist.';
+                        CtrlComms.add_alert('success',msg);
                     }
-                    else {alert(data.error);}
+                    else {CtrlComms.add_alert('error',data.error);}
                     
                 },
                 error: function(resp,b,error){
-                    alert(resp.responseText+'</br>'+error);
+                    var msg = resp.responseText+':'+error;
+                    CtrlComms.add_alert('error',msg);
                 }
                 
             });

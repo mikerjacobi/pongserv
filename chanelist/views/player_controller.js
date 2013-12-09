@@ -25,6 +25,7 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
             */
             $scope.video_index = 0;
             $scope.start_playlist_from_index($scope.video_index);
+            $scope.curr_playlist = CtrlComms.current_playlist;
         });
         
         $scope.playerInit = function(passed_video){

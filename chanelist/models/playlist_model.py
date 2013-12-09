@@ -24,10 +24,16 @@ class VideoDoesNotExistError(Exception):
 def generate_uuid():
     return str(uuid.uuid4()).replace('-','')
 
+def get_playlist_name_from_id(playlist_id):
+    p = PlaylistModel()
+    p.load(playlist_id)
+    return p.orm.playlist_name
+
 class PlaylistModel(object):
     def __init__(self):
         self.orm = None
         self.session = Session()
+
 
     def search(self):
         try:
@@ -73,7 +79,7 @@ class PlaylistModel(object):
             print e
 
         if num_PLs_with_name != 0:
-            raise Exception  
+            raise Exception 
             
     def create(self, **kwargs):
         playlist_id = None
@@ -83,7 +89,7 @@ class PlaylistModel(object):
             user = user_model.UserModel()
             user.load(kwargs['username'], kwargs['hashword'])
         except Exception, e:
-            raise UserDoesNotExistError(e)
+            raise UserDoesNotExistError('Credential error.')
 
         #check to see if this user has a playlist with this name
         try:
@@ -117,19 +123,28 @@ class PlaylistModel(object):
 
     def add_video(self, video_id):
         if self.orm == None:
-            raise PlaylistNotLoadedError('playlist DNE')
+            raise PlaylistNotLoadedError('Playlist does not exist.')
 
         try:
             video = video_model.VideoModel()
             video.load(str(video_id))
         except Exception, e:
-            raise VideoDoesNotExistError('Video dne: %s', str(e))
+            raise VideoDoesNotExistError('Video does not exist.')
 
         try:
             curr_videos = json.loads(self.orm.videos)
         except:
             curr_videos = {}
-        curr_videos[video.orm.video_id] = 0 #playcount = 0
+
+        if video_id in curr_videos:
+            raise Exception('Video already in playlist')
+        video_data = {
+            'playcount':0,
+            'duration':video.orm.duration,
+            'date_added':video.orm.date_added
+        }
+        curr_videos[video.orm.video_id] = video_data 
+        self.update_duration(curr_videos)
         self.orm.videos = json.dumps(curr_videos)
         self.session.add(self.orm)
         self.session.commit()
@@ -150,9 +165,21 @@ class PlaylistModel(object):
         except:
             raise VideoDoesNotExistError("Video not in playlist")
 
+        self.update_duration(curr_videos)
+
         self.orm.videos = json.dumps(curr_videos)
         self.session.add(self.orm)
         self.session.commit()
+
+    def update_duration(self, curr_videos):
+        duration = 0
+        for video in curr_videos:
+            try:
+                curr_durr = curr_videos[video].get('duration', 0)
+                duration += curr_durr
+            except:
+                print 'duration error: '+video
+        self.orm.duration = duration
 
     def as_dict(self):
         data = {}

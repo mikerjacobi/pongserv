@@ -9,7 +9,7 @@ playlistController.controller('PlaylistCtrl', ['$scope', 'CtrlComms',
         $scope.alert_msg = '';
 
         $scope.init = function(){
-            $scope.get_user_playlists();
+            $scope.user_playlists = CtrlComms.get_user_playlists();
         };
 
         $scope.play_playlist = function(playlist_id){
@@ -54,30 +54,19 @@ playlistController.controller('PlaylistCtrl', ['$scope', 'CtrlComms',
                         $scope.$apply(function(){
                             $scope.user_playlists.push(new_playlist);
                         });
+                        CtrlComms.add_alert('success', 'created playlist: '+new_playlist.playlist_id);
 
                     }
-                    else {alert(data.error);}
+                    else {CtrlComms.add_alert('error', data.error);}
                     
                 },
                 error: function(resp,b,error){
-                    alert(resp.responseText+'</br>'+error);
+                    var msg = resp.responseText+': '+error;
+                    CtrlComms.add_alert('error', msg);
                 }
                 
             });
         };
-
-
-        $scope.get_user_playlists = function(){
-            var playlist_ids = JSON.parse(ctrlService.current_user.playlists_owned);
-
-            for (id in playlist_ids){
-                var pl = ctrlService.get_playlist(id);
-                $scope.user_playlists.push(pl);
-            }
-        
-            $scope.user_playlists;
-        };
-        
         
         $scope.init();
     }

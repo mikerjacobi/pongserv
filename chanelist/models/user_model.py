@@ -11,6 +11,16 @@ import json
 engine = create_engine(settings.MYSQL_URL)
 Session = sessionmaker(bind=engine)
 
+def get_playlist_ids(username):
+    try:
+        current_user = Session().query(
+            user_orm.User)\
+            .filter_by(username=username)\
+            .one()
+        return json.loads(current_user.playlists_owned)
+    except:
+        raise
+
 class UserModel(object):
     def __init__(self):
         self.orm = None
@@ -22,7 +32,7 @@ class UserModel(object):
             self.session.add(self.orm)
             self.session.commit()
         except:
-            raise
+            raise Exception('Account creation failure')
 
     def load(self, username, password):
         try:
@@ -33,6 +43,7 @@ class UserModel(object):
                 .one()
         except:
             raise
+
 
     def as_dict(self):
         data = {}

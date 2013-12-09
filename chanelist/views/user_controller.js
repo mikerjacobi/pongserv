@@ -29,17 +29,16 @@ userController.controller('UserCtrl', ['$scope', 'CtrlComms',
                     {
                         $scope.$apply(function(){
                             var current_user = JSON.parse(data.data);
-                            $('#username_display').text(current_user.username);
-                            CtrlComms.set_user(current_user);
-                            $scope.current_user = current_user;
+                            $scope.load_user(current_user);
+                            CtrlComms.add_alert('success', 'created account: '+current_user);
                         });
                     }
                     else{
-                        alert(data.error);
+                        CtrlComms.add_alert('error', data.error);
                     }
                 },
                 error: function(resp, b, error){
-                    alert(resp.responseText+'</br>'+error);
+                    CtrlComms.add_alert('error', data.error);
                 }
             });
 
@@ -63,21 +62,27 @@ userController.controller('UserCtrl', ['$scope', 'CtrlComms',
                     if (data.success == 1){
                         $scope.$apply(function(){
                             var current_user = JSON.parse(data.data);
-                            $('#username_display').text(current_user.username);
-                            CtrlComms.set_user(current_user);
-                            $scope.current_user = current_user;
+                            $scope.load_user(current_user);
                         });
                     }
                     else{
-                        alert(data.error);
+                        CtrlComms.add_alert('error', data.error);
                     }
                 },
                 error: function(resp, b, error){
-                    alert(resp.responseText+'</br>'+error);
+                    CtrlComms.add_alert('error', error);
                 }
             });
 
             
+        };
+
+        $scope.load_user = function(user){
+            $('#username_display').text(user.username);
+            CtrlComms.set_user(user);
+            $scope.current_user = user;
+            $scope.user_playlists = CtrlComms.get_user_playlists();
+
         };
 
     },

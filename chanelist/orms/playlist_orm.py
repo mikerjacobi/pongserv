@@ -14,6 +14,7 @@ class Playlist(Base):
     upvotes = Column(Integer)
     downvotes = Column(Integer)
     date_added = Column(String)
+    duration = Column(Integer)
 
     def __init__(self, playlist_id, **kwargs):
         self.playlist_id = playlist_id
@@ -23,6 +24,7 @@ class Playlist(Base):
         self.upvotes = 0
         self.downvotes = 0
         self.date_added = str(datetime.datetime.now().isoformat())[:19]
+        self.duration = 0
     
     def __repr__(self):
         data = dict(
@@ -34,6 +36,7 @@ class Playlist(Base):
             upvotes = self.upvotes,
             downvotes = self.downvotes,
             date_added = self.date_added,
+            duration = self.duration,
         )
         return json.dumps(data)
 
