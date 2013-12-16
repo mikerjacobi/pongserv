@@ -9,6 +9,7 @@ import sqlalchemy.exc
 from BeautifulSoup import BeautifulSoup
 import traceback
 import sys
+import urllib, urllib2
 
 def get_input_data(request):
     if 'curl' in request.headers['User-Agent']:
@@ -143,7 +144,7 @@ def video(video_id=None):
             video.load(video_id)
             success, data = 1, video.as_json()
         except Exception, e:
-            success, data = 0, e
+            success, data = 0, str(e)
     elif request.method == 'POST':
         input_data = get_input_data(request)
 
@@ -271,9 +272,13 @@ def autoadd_video(playlist_id):
             except video_model.VideoNotCreated, e:
                 fetch_video = True
 
-            if fetch_video and video_kwargs['provider']=='youtube':
-                video_kwargs.update(get_youtube_data(video_kwargs['video_id']))
-                video.create(**video_kwargs)
+            if fetch_video:
+                if video_kwargs['provider']=='youtube':
+                    video_kwargs.update(get_youtube_data(video_kwargs['video_id']))
+                    video.create(**video_kwargs)
+                elif video_kwargs['provider']=='soundcloud':
+                    video_kwargs.update(get_soundcloud_data(video_kwargs['video_id']))
+                    video.create(**video_kwargs)
 
             video_id = video.orm.video_id
             playlist = playlist_model.PlaylistModel()
@@ -325,17 +330,50 @@ def get_youtube_data(video_id):
         }
     except:
         raise
+def get_soundcloud_data(video_id):
+    try:
+        video_id = video_id.replace('%','/')
+        base_url = "http://soundcloud.com/"
+        values = {
+            'url':base_url+video_id,
+            'format':'json',
+            'autoplay':'true'
+
+        }
+        data = urllib.urlencode(values)
+        req = urllib2.Request(base_url+'oembed', data)
+        resp = json.loads(urllib2.urlopen(req).read())
+        iframe_url = BeautifulSoup(resp['html']).find('iframe')['src']
+
+        return {
+            'description':resp['description'],
+            'title':resp['title'],
+            'duration':0,
+            'src_url':iframe_url
+        }
+    except:
+        raise
 
 def get_url_data(url):
     video_id, provider = None, None
-    if 'youtube' in url:
-        provider = 'youtube'
-        get_params = url.split('?')[1].split('&')
-        for get_param in get_params:
-            if 'v=' in get_param:
-                video_id = get_param.split('=')[1]
-                break
-    else:
+    try:
+        urlsubstr = url.split('.com')[0]
+        provider = None
+
+        if 'youtube' in urlsubstr:
+            provider = 'youtube'
+            get_params = url.split('?')[1].split('&')
+            for get_param in get_params:
+                if 'v=' in get_param:
+                    video_id = get_param.split('=')[1]
+                    break
+        elif 'soundcloud' in urlsubstr:
+            provider = 'soundcloud'
+            video_id = url.split('.com/')[1].split('?')[0].replace('/','%')
+
+        if provider == None:
+            raise
+    except:
         raise Exception('invalid url')
     return {'video_id':video_id, 'provider':provider}
 
