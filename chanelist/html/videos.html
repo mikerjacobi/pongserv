@@ -1,3 +1,4 @@
+    <!--
     <div id="createVideoDiv">
         create video: <br>
         <input class="input-medium search-query" id="video_create_id" placeholder="video id"><br>
@@ -15,10 +16,11 @@
         <button class="btn btn-warning" ng-click='modify_list("del")'>del video</button> <br> 
     <div>
 
-    <br>
+        <br>
+        -->
     <div id="autoModifyListDiv">
         Auto add video to playlist via url: <br>
-        <input class="input-medium search-query" ng_model='video_url' placeholder="video url" ><br>
+        <input class="input-medium search-query" ng_model='video_url' placeholder="video url" width="40"><br>
         <select ng-model="playlist" ng-options="pl.playlist_id as pl.playlist_name for pl in playlists" placeholder="playlist id"></select><br>
         <button class="btn btn-primary" ng-click='auto_modify_list("add")'>add video</button> 
     <div>

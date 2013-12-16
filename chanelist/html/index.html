@@ -9,6 +9,8 @@
         <script type="text/JavaScript" src="/js/ui-bootstrap-tpls-0.7.0.js"></script> 
         <script type="text/JavaScript" src="/js/angular-route.js"></script> 
         <script type="text/JavaScript" src="/js/jQuery.tubeplayer.js"></script>
+        <script type="text/JavaScript" src="/js/api.js"></script> 
+        <!--<script src="//connect.soundcloud.com/sdk.js"></script> -->
 
         <script type="text/JavaScript" src="/views/app.js"></script> 
         <script type="text/JavaScript" src="/views/player_controller.js"></script> 
@@ -80,8 +82,14 @@
                         <button class="btn btn-small btn-primary" ng-click='player_previous()'> Previous </button>
 
                         <div id='youtube-player-container' > </div>
-
+                        
                     </div><!-- playerdiv  -->
+
+                    <br><br>
+                    <div id='soundcloud-player-container'>
+                        <iframe class='iframe'></iframe>
+                    </div>
+                    <!--<iframe width="100%" height="166" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F293&show_artwork=true"></iframe>-->
 
                 </div><!-- span4div  -->
 

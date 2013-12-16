@@ -21,6 +21,7 @@ class Video(Base):
     description = Column(String)
     duration = Column(Integer)
     provider = Column(String)
+    src_url = Column(String)
 
     def __init__(self, video_id, **kwargs):
         self.video_id = video_id
@@ -37,12 +38,14 @@ class Video(Base):
         self.tag6 = kwargs.get('tag6', '')
         self.description = kwargs.get('description', '')
         self.duration = kwargs.get('duration', 0)
-        self.provider = kwargs.get('provider', 'youtube')
+        self.provider = kwargs.get('provider', '')
+        self.src_url = kwargs.get('src_url', '')
 
     def __repr__(self):
         if self.duration==None:
             self.duration = 0
-            print 'duration is 0 for %s'%self.video_id
+        if self.provider==None:
+            self.provider = 'youtube'
 
         data = dict(
             video_id = self.video_id,
@@ -59,7 +62,8 @@ class Video(Base):
             tag6 = self.tag6,
             description = self.description,
             duration = self.duration,
-            provider = self.provider
+            provider = self.provider,
+            src_url = self.src_url
         )
         return json.dumps(data)
 

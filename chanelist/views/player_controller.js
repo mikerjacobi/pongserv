@@ -4,7 +4,8 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
     function PlayerCtrl($scope, CtrlComms){
         $scope.init = function(){
             $scope.curr_video = CtrlComms.current_video;
-            $scope.playerInit($scope.curr_video);
+            $scope.youtubeInit($scope.curr_video);
+            $scope.soundcloudInit();
             $scope.video_index = 0;
         };
 
@@ -14,7 +15,28 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
                 var videos = Object.keys(JSON.parse(CtrlComms.current_playlist.videos));
                 var video = videos[index];
                 current_video = CtrlComms.get_video(video);
-                jQuery("#youtube-player-container").tubeplayer("play", video);
+                if (current_video.provider == 'soundcloud'){
+                    $('#soundcloud-player-container').show();
+                    $('#youtube-player-container').hide();
+                    $scope.player_pause();
+                    var html = current_video.src_url;
+                    var iframe = document.querySelector('.iframe');
+                    iframe.src = html;
+                    var widget = SC.Widget(iframe);
+                    widget.bind(SC.Widget.Events.READY, function() {
+                        widget.play(true);
+                    });
+                }
+                else if (current_video.provider == 'youtube'){
+                    $('#youtube-player-container').show();
+                    $('#soundcloud-player-container').hide();
+                    var iframe = document.querySelector('.iframe');
+                    var widget = SC.Widget(iframe);
+                    widget.bind(SC.Widget.Events.READY, function() {
+                        widget.pause(true);
+                    });
+                    jQuery("#youtube-player-container").tubeplayer("play", video);
+                }
             }
             $scope.current_video = current_video;
         };
@@ -27,8 +49,12 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
             $scope.start_playlist_from_index($scope.video_index);
             $scope.curr_playlist = CtrlComms.current_playlist;
         });
+
+        $scope.soundcloudInit = function(){
         
-        $scope.playerInit = function(passed_video){
+        };
+        
+        $scope.youtubeInit = function(passed_video){
             jQuery("#youtube-player-container").tubeplayer({
                 width: 300,
                 height: 300,
@@ -51,11 +77,15 @@ playerController.controller('PlayerCtrl', ['$scope', 'CtrlComms',
             });
 
             $.tubeplayer.defaults.afterReady = function(){
-                $scope.start_playlist_from_index($scope.video_index);
                 CtrlComms.signal_player_ready();
             }
             $.tubeplayer.defaults.loadSWFObject = false;
         };
+
+        $scope.sc_play = function(){
+
+        };
+
 
         $scope.player_next = function(){
             var videos = Object.keys(JSON.parse(CtrlComms.current_playlist.videos));
