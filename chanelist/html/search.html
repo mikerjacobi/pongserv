@@ -1,9 +1,0 @@
-    <div id="searchDiv">
-        <ul>
-            <li ng-repeat="list in playlists | filter:query">
-                <button class="btn btn-small btn-primary" ng-click="play_playlist(list.playlist_id)">play</button>
-                {{list.playlist_name}}
-            </li>
-        </ul>
-        {{alert_msg}}
-    </div>

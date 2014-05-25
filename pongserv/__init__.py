@@ -2,5 +2,5 @@
 __version__ = '0.1'
 from bottle import Bottle, TEMPLATE_PATH
 app = Bottle()
-TEMPLATE_PATH.append("./chanelist/views/")
-from chanelist.controllers import *
+TEMPLATE_PATH.append("./pongserv/views/")
+from pongserv.controllers import *
