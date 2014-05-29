@@ -8,9 +8,13 @@ import pymongo
 from bson.objectid import ObjectId
 
 conn = pymongo.Connection()
-db = "ping"
-table = "pong"
-db = conn['ping']['pong']
+#db = "ping"
+#table = "pong"
+db = None
+
+def set_db(passed_db, passed_table):
+    global db
+    db =conn[passed_db][passed_table]
 
 def create_game(player1, player2):
     startTime = str(datetime.datetime.now())[:-7]
@@ -25,6 +29,21 @@ def create_game(player1, player2):
     }
     game_id = str(db.insert(game))
     return list(db.find({'_id':ObjectId(game_id)}))[0]
+
+def set_starter(game_id, player):
+    game_state = list(db.find(
+        {'_id':ObjectId(game_id)}
+    ))[0]
+    print game_state
+    starter = game_state.get("starter", None)
+    if starter == None:
+        db.update(
+            {'_id':ObjectId(game_id)},
+            {'$set':{'starter':player}}
+        )
+        return True
+    else:
+        return False
 
 def increment_score(game_id, player):
     game_state = list(db.find(
@@ -48,9 +67,10 @@ def increment_score(game_id, player):
         end_condition &= (game_state[player] - game_state[other_player]) >= 2
 
         if end_condition:
+            endTime = str(datetime.datetime.now())[:-7]
             db.update(
                 {'_id':ObjectId(game_id)},
-                {'$set':{'game_over':True, 'winner':player}}
+                {'$set':{'game_over':True, 'winner':player, "end_time":endTime}}
             )
 
 
