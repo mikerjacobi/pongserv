@@ -5,6 +5,11 @@ from pongserv.models import pong_model
 import json
 import uuid
 import datetime
+from pongserv import settings
+
+db = settings.conf['db']
+table = settings.conf['table']
+pong_model.set_db(db, table)
 
 def get_input_data(request):
     if 'curl' in request.headers['User-Agent']:
@@ -43,6 +48,16 @@ def unscore(game_id, player):
     print curr_game_state
     curr_game_state['_id'] = str(curr_game_state['_id'])
     return json.dumps(curr_game_state)
+
+@app.route("/starter/<game_id>/<player>", method="POST")
+def starter(game_id, player):
+    print "pre starter"
+    try:
+        success = pong_model.set_starter(game_id, player)
+        return json.dumps({"success":success})
+    except Exception, e:
+        print type(e), str(e)
+    return
 
 @app.route('/views/<filename>')
 def server_static(filename):
