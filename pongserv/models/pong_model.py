@@ -50,10 +50,15 @@ def increment_score(game_id, player):
         {'_id':ObjectId(game_id)}
     ))[0]
     if game_state['game_over'] == False:
+        score = {
+            "point":player,
+            "time":datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
         db.update(
             {'_id':ObjectId(game_id)},
             {'$inc':{player:1},
-            '$push':{'history':player}}
+            '$push':{'history':score}}
         )
         game_state[player] += 1
         if player == game_state['player1']:
