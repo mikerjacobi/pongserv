@@ -87,7 +87,7 @@ def increment_score(game_id, player):
 def decrement_score(game_id, player):
     game_state = list(db.find({'_id':ObjectId(game_id)}))[0]
     try:
-        should_decrement_score = (game_state['history'][-1] == player)
+        should_decrement_score = (game_state['history'][-1]['point'] == player)
         should_decrement_score &= not game_state['game_over']
         should_decrement_score &= game_state[player] > 0
         if not should_decrement_score:
